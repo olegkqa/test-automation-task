@@ -21,7 +21,8 @@ describe('As an anonymous user, I want to generate an order using a coupon, so I
         assert.equal(price, '95.00');
         checkoutPage.checkoutButton.waitForVisible();
         checkoutPage.checkoutButton.click();
-        checkoutPage.couponCodeInput.waitForVisible();
-        expect(checkoutPage.couponCodeInput.isVisible()).to.equal(true);
+        checkoutPage.applyCoupon();
+        checkoutPage.checkDiscountPrice();
+        checkoutPage.checkTaxesPrice();
     });
 });
