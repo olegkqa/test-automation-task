@@ -1,0 +1,22 @@
+{
+  "name": "automation-task",
+  "version": "1.1.0",
+  "scripts": {
+    "test:e2e": "wdio ./config/wdio.conf.js"
+  },
+  "dependencies": {
+    "chai": "^4.1.2",
+    "chromedriver": "^2.45.0",
+    "wdio-chromedriver-service": "^0.1.5",
+    "wdio-selenium-standalone-service": "0.0.9",
+    "wdio-spec-reporter": "^0.1.4",
+    "webdriverio": "^4.13.2"
+  },
+  "engines": {
+    "node": "10.14.1",
+    "npm": "6.4.1"
+  },
+  "devDependencies": {
+    "wdio-mocha-framework": "^0.6.4"
+  }
+}
