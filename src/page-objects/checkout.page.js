@@ -1,3 +1,6 @@
+const transformPrice = require('../helpers/transformPrice.js');
+const waitForInvisible = require('../helpers/waitForInvisible.js');
+
 class Checkout {
   get cartSubtotalPrice() {
   	return browser.element('.cart-subtotal--price small');
@@ -12,7 +15,7 @@ class Checkout {
   	return browser.element('[ng-click="$ctrl.applyCoupon($ctrl.coupon)"]');
   }
   get couponRemoveButton() {
-  	return browser.element('//button/span[text()[contains(.,"Remove")]]');
+  	return browser.element('[ng-click="$ctrl.onRemoveCoupon({ coupon: coupon })"]');
   }
   get totalLines() {
   	return browser.element('.order-summary__section--total-lines');
@@ -29,6 +32,64 @@ class Checkout {
   get TaxesPrice() {
   	return browser.element('[ng-bind="$ctrl.order.taxTotal.formattedAmount"]');
   }
+  get TotalPrice() {
+  	return browser.element('[ng-bind="$ctrl.order.total.formattedAmount"]');
+  }
+  get emailInput() {
+    return browser.element('input#Email');
+  }
+  get firstNameInput() {
+    return browser.element('input#FirstName');
+  }
+  get lastNameInput() {
+    return browser.element('input#LastName');
+  }
+  get companyInput() {
+    return browser.element('input#Organization');
+  }
+  get addressInput() {
+    return browser.element('input#Line1');
+  }
+  get aptInput() {
+    return browser.element('input#Line2');
+  }
+  get cityInput() {
+    return browser.element('input#City');
+  }
+  get countrySelect() {
+    return browser.element('.form-select');
+  }
+  get zipInput() {
+    return browser.element('input#PostalCode');
+  }
+  get phoneInput() {
+    return browser.element('input#Phone');
+  }
+  get continueButton() {
+    return browser.element('.step__footer__continue-btn');
+  }
+
+  enterEmail() {
+    this.emailInput.setValue('olegkqa@gmail.com');
+  }
+
+  fillOutShippingForm() {
+    this.firstNameInput.setValue('test');
+    this.lastNameInput.setValue('test');
+    this.companyInput.setValue('test');
+    this.addressInput.setValue('test');
+    this.aptInput.setValue('test');
+    this.cityInput.setValue('test');
+    this.countrySelect.setValue('');
+  }
+
+  readPrices() {
+    this.taxes = transformPrice(this.TaxesPrice);
+    this.discount = transformPrice(this.DiscountPrice);
+    this.subtotal = transformPrice(this.SubtototalPrice);
+    this.shipping = transformPrice(this.ShippingPrice);
+    this.total = transformPrice(this.TotalPrice);
+  }
 
   applyCoupon() {
 	this.couponCodeInput.waitForVisible();
@@ -37,24 +98,34 @@ class Checkout {
     this.couponApplyButton.waitForEnabled();
     this.couponApplyButton.click();
     this.couponRemoveButton.waitForVisible();
+
+    this.readPrices();
   }
 
-  checkDiscountPrice () {
-  	let actualDiscount = parseFloat(this.DiscountPrice.getText().replace(/\$/g,''));
-  	let subtotal = parseFloat(this.SubtototalPrice.getText().replace(/\$/g,''));
-  	let expectedDiscount = Math.floor(parseFloat(0.1*subtotal)*100)/100;
-    expect(actualDiscount).to.equal(expectedDiscount);
+  removeCoupon() {
+    this.couponRemoveButton.waitForVisible();
+    this.couponRemoveButton.waitForEnabled();
+    this.couponRemoveButton.click();
+    waitForInvisible(this.couponRemoveButton);
+
+    this.readPrices();
   }
 
-  checkTaxesPrice () {
+  initialDiscount() {
+    return Math.floor(parseFloat(0.05*this.subtotal)*100)/100;
+  }
+
+  calculateDiscountPrice () {
+  	return Math.floor(parseFloat(0.1*this.subtotal)*100)/100;
+  }
+
+  calculateTaxesPrice () {
   	this.totalLines.waitForVisible();
-    browser.pause(5000);
-   	let actualTaxes = parseFloat(this.TaxesPrice.getText().replace(/\$/g,''));
-   	let shipping = parseFloat(this.ShippingPrice.getText().replace(/\$/g,''));
-   	let discount = parseFloat(this.DiscountPrice.getText().replace(/\$/g,''));
-   	let subtotal = parseFloat(this.SubtototalPrice.getText().replace(/\$/g,''));
-   	let expectedTaxes = Math.floor(parseFloat(0.2*(subtotal+shipping-discount))*100)/100;
-   	expect(actualTaxes).to.equal(expectedTaxes);
+   	return Math.floor(parseFloat(0.2*(this.subtotal+this.shipping-this.discount))*100)/100;
+  }
+
+  calculateTotalPrice () {
+  	return Math.floor(parseFloat(this.subtotal+this.shipping-this.discount+this.taxes)*100)/100;
   }
 
 }
