@@ -45,5 +45,16 @@ describe('As an anonymous user, I want to generate an order using a coupon, so I
         expect(checkoutPage.discount).to.equal(checkoutPage.initialDiscount());
         expect(checkoutPage.taxes).to.equal(expectedTaxes);
         expect(checkoutPage.total).to.equal(expectedTotal);
+
+        checkoutPage.applyCoupon();
+    });
+
+    it('should be possible to fill out the info form and go to the next step', function () {
+    	var expectedDiscount = checkoutPage.calculateDiscountPrice();
+    	checkoutPage.enterEmail();
+    	checkoutPage.fillOutCustomerForm();
+    	checkoutPage.fillOutShippingForm();
+    	checkoutPage.finishOrder();
+    	expect(checkoutPage.finalDiscount()).to.equal(expectedDiscount)
     });
 });

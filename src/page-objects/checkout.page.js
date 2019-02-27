@@ -66,21 +66,64 @@ class Checkout {
     return browser.element('input#Phone');
   }
   get continueButton() {
-    return browser.element('.step__footer__continue-btn');
+    return browser.element('[ng-click="$ctrl.nextStep()"]');
+  }
+  get groundShippingOption() {
+    return browser.element('[id="FixedRate:Ground"]');
+  }
+  get loadingButton() {
+    return browser.element('.btn--loading');
+  }
+  get billingAddress() {
+    return browser.element('#BillingAddressEqualsShipping');
+  }
+  get finalSubtotalPrice() {
+    return browser.element('[ng-bind="order.subTotal.formattedAmount"]')
   }
 
   enterEmail() {
     this.emailInput.setValue('olegkqa@gmail.com');
   }
 
-  fillOutShippingForm() {
+  fillOutCustomerForm() {
     this.firstNameInput.setValue('test');
     this.lastNameInput.setValue('test');
     this.companyInput.setValue('test');
     this.addressInput.setValue('test');
     this.aptInput.setValue('test');
     this.cityInput.setValue('test');
-    this.countrySelect.setValue('');
+    this.countrySelect.click();
+    browser.waitForVisible('option[label="Albania"]');
+    browser.click('option[label="Albania"]');
+    this.zipInput.setValue('test');
+    this.phoneInput.setValue('test');
+    this.continueButton.waitForVisible();
+    this.continueButton.click();
+  }
+
+  fillOutShippingForm() {
+    this.groundShippingOption.waitForVisible();
+    this.groundShippingOption.click();
+    this.loadingButton.waitForVisible();
+    this.continueButton.waitForVisible();
+    browser.waitUntil(
+    () => this.ShippingPrice.getText() === '$5.00',
+    60000,
+    'expected to be 5.00 after 60s'
+  );
+    this.continueButton.click();
+  }
+
+  finishOrder() {
+    this.billingAddress.waitForVisible();
+    this.continueButton.waitForVisible();
+    browser.waitUntil(
+    () => browser.isVisible('.btn--loading') === false,
+    60000,
+    'expected to be false after 60s'
+  );
+    this.continueButton.click();
+    browser.waitForVisible('//h4[text()[contains(.,"Order")]]');
   }
 
   readPrices() {
@@ -109,6 +152,11 @@ class Checkout {
     waitForInvisible(this.couponRemoveButton);
 
     this.readPrices();
+  }
+
+  finalDiscount() {
+    this.finalSubtotal = transformPrice(this.finalSubtotalPrice);
+    return Math.floor(parseFloat(0.1*this.finalSubtotal)*100)/100;
   }
 
   initialDiscount() {
