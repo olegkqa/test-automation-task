@@ -2,7 +2,7 @@
   "name": "automation-task",
   "version": "1.1.0",
   "scripts": {
-    "test:e2e": "wdio ./config/wdio.conf.js"
+    "e2e-test": "./node_modules/.bin/wdio wdio.conf.js"
   },
   "dependencies": {
     "chai": "^4.1.2",

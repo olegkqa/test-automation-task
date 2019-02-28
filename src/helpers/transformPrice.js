@@ -1,3 +1,3 @@
 module.exports = element => {
-  return parseFloat(element.getText().replace(/\$/g,''));
-};
+  return parseFloat(element.getText().replace(/\$/g, ''))
+}
